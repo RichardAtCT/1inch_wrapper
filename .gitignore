@@ -187,3 +187,4 @@ fabric.properties
 main.py
 dist
 1inch_wrapper.egg-info
+setup.cfg

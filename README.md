@@ -13,7 +13,7 @@ pip install 1inch_wrapper
 ## Usage
 
 ```python
-from oneinch_wrapper.main import OneInchSwap
+from oneinch_wrapper import OneInchSwap
 
 exchange = OneInchSwap('eth_address')
 bsc_exchange = OneInchSwap('eth_address', chain='binance')
