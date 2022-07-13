@@ -184,7 +184,6 @@ fabric.properties
 #  idea folder, uncomment if you don't need it
 .idea
 .DS_Store
-main.py
 dist
 1inch_wrapper.egg-info
 setup.cfg

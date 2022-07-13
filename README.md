@@ -13,7 +13,7 @@ pip install 1inch_wrapper
 ## Usage
 
 ```python
-from oneinch_wrapper import OneInchSwap
+from oneinch_py import OneInchSwap
 
 exchange = OneInchSwap('eth_address')
 bsc_exchange = OneInchSwap('eth_address', chain='binance')
@@ -24,11 +24,9 @@ exchange.health_check()
 # Address of the 1inch router that must be trusted to spend funds for the exchange
 exchange.get_spender()
 
-
 # Generate data for calling the contract in order to allow the 1inch router to spend funds. Token symbol or address is required. If option "amount" variable is not supplied (in ether), unlimited allowance is granted.
 exchange.get_approve("USDT")
 exchange.get_approve("0xdAC17F958D2ee523a2206206994597C13D831ec7", amount=100)
-
 
 # Get the number of tokens (in Wei) that the router is allowed to spend. Option "send address" variable. If not supplied uses address supplied when Initialization the exchange object. 
 exchange.get_allowance("USDT")

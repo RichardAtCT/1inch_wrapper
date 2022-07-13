@@ -68,7 +68,6 @@ class OneInchSwap:
         :return: Always returns code 200 if API is stable
         """
         url = f'{self.base_url}/{self.version}/{self.chain_id}/healthcheck'
-        print(url)
         response = self._get(url)
         return response['status']
 
