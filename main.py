@@ -14,7 +14,7 @@ for key in chains.keys():
     exchange = OneInchSwap('0x1d05aD0366ad6dc0a284C5fbda46cd555Fb4da27', chain=key)
     # print(key)
     # print(next(iter(exchange.tokens)))
-    print(exchange.get_quote("ETH", "USDT", 1)[1])
+    print(exchange.get_swap(from_token_symbol='ETH', to_token_symbol='USDT', amount=0.5, slippage=0.5))
 
 # eth_exchange = OneInchSwap('0x1d05aD0366ad6dc0a284C5fbda46cd555Fb4da27')
 # polygon_exchange = OneInchSwap('0x1d05aD0366ad6dc0a284C5fbda46cd555Fb4da27', chain="polygon")
