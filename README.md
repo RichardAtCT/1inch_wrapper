@@ -7,7 +7,7 @@
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install 1inch_wrapper.
 
 ```bash
-pip install 1inch_wrapper
+pip install 1inch.py
 ```
 
 ## Usage
