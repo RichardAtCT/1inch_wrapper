@@ -185,3 +185,5 @@ fabric.properties
 .idea
 .DS_Store
 main.py
+dist
+1inch_wrapper.egg-info
