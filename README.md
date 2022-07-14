@@ -1,9 +1,11 @@
 # 1inch_wrapper
 
+[1inch.py](https://github.com/RichardAtCT/1inch_wrapper/1inchpy.png)
+
 1inch_wrapper is a wrapper around the 1inch swap API. It has full coverage of the swap API endpoint. All chains support by 1inch are included in the wrapper. 
 
 ## API Documentation
-The full 1inch swap API docs can be found at https://docs.1inch.io/docs/aggregation-protocol/api/swagger/
+The full 1inch swap API docs can be found at https://docs.1inch.io/
 ## Installation
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install 1inch_wrapper.
@@ -23,10 +25,10 @@ bsc_exchange = OneInchSwap('eth_address', chain='binance')
 exchange.health_check()
 # 'OK'
 
-# Address of the 1inch router that must be trusted to spend funds for the exchange
+# Address of the 1inch router that must be trusted to spend funds for the swap
 exchange.get_spender()
 
-# Generate data for calling the contract in order to allow the 1inch router to spend funds. Token symbol or address is required. If option "amount" variable is not supplied (in ether), unlimited allowance is granted.
+# Generate data for calling the contract in order to allow the 1inch router to spend funds. Token symbol or address is required. If optional "amount" variable is not supplied (in ether), unlimited allowance is granted.
 exchange.get_approve("USDT")
 exchange.get_approve("0xdAC17F958D2ee523a2206206994597C13D831ec7", amount=100)
 
@@ -52,6 +54,8 @@ exchange.tokens
 
 # Returns the exchange rate of two tokens. 
 # Tokens can be provided as symbols or addresses
+# "amount" is supplied in ether
+# NOTE: When using custom tokens, the token decimal is assumed to be 18. If your custom token has a different decimal - please manually pass it to the function (decimal=x)
 # Also returns the "price" of more expensive token in the cheaper tokens. Optional variables can be supplied as **kwargs
 exchange.get_quote(from_token_symbol='ETH', to_token_symbol='USDT', amount=1)
 # (
@@ -78,6 +82,7 @@ exchange.get_quote(from_token_symbol='ETH', to_token_symbol='USDT', amount=1)
 # Creates the swap data for two tokens.
 # Tokens can be provided as symbols or addresses
 # Optional variables can be supplied as **kwargs
+# NOTE: When using custom tokens, the token decimal is assumed to be 18. If your custom token has a different decimal - please manually pass it to the function (decimal=x)
 
 exchange.get_swap(from_token_symbol='ETH', to_token_symbol='USDT', amount=1, slippage=0.5)
 # {
