@@ -1,6 +1,6 @@
 # 1inch_wrapper
 
-![1inch.py](https://github.com/RichardAtCT/1inch_wrapper/1inchpy.png)
+![1inch.py](https://github.com/RichardAtCT/1inch_wrapper/blob/master/1inchpy.png)
 
 1inch_wrapper is a wrapper around the 1inch swap API. It has full coverage of the swap API endpoint. All chains support by 1inch are included in the wrapper. 
 
