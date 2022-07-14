@@ -2,6 +2,8 @@
 
 1inch_wrapper is a wrapper around the 1inch swap API. It has full coverage of the swap API endpoint. All chains support by 1inch are included in the wrapper. 
 
+## API Documentation
+The full 1inch swap API docs can be found at https://docs.1inch.io/docs/aggregation-protocol/api/swagger/
 ## Installation
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install 1inch_wrapper.
