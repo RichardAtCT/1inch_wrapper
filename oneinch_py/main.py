@@ -197,25 +197,25 @@ class OneInchSwap:
 class TransactionHelper:
 
     gas_oracles = {
-        "ethereum": 'https://etherchain.org/api/gasnow',
+        # "ethereum": 'https://etherchain.org/api/gasnow',
         "binance": 'https://gbsc.blockscan.com/gasapi.ashx?apikey=key&method=gasoracle',
-        "polygon": "https://gasstation-mainnet.matic.network/",
-        "optimism": "10",
-        "arbitrum": "https://owlracle.info/arb/gas?apikey=877d078a2753422d8a6fbd3d092f5ddb",
-        "gnosis": "https://blockscout.com/xdai/mainnet/api/v1/gas-price-oracle",
-        "avalanche": "https://gavax.blockscan.com/gasapi.ashx?apikey=key&method=gasoracle",
-        "fantom": "https://owlracle.info/ftm/gas?apikey=877d078a2753422d8a6fbd3d092f5ddb"
+        # "polygon": "https://gasstation-mainnet.matic.network/",
+        # "optimism": "10",
+        # "arbitrum": "https://owlracle.info/arb/gas?apikey=877d078a2753422d8a6fbd3d092f5ddb",
+        # "gnosis": "https://blockscout.com/xdai/mainnet/api/v1/gas-price-oracle",
+        # "avalanche": "https://gavax.blockscan.com/gasapi.ashx?apikey=key&method=gasoracle",
+        # "fantom": "https://owlracle.info/ftm/gas?apikey=877d078a2753422d8a6fbd3d092f5ddb"
     }
 
     chains = {
         "ethereum": '1',
         "binance": '56',
         "polygon": "137",
-        "optimism": "10",
-        "arbitrum": "42161",
-        "gnosis": "100",
+        # "optimism": "10",
+        # "arbitrum": "42161",
+        # "gnosis": "100",
         "avalanche": "43114",
-        "fantom": "250"
+        # "fantom": "250"
     }
 
     MODE = {
@@ -226,18 +226,16 @@ class TransactionHelper:
 
     abi = json.loads(pkg_resources.read_text(__package__, 'erc20.json'))['result']
 
-    # with open(pkg_resources.read_text(__package__, 'erc20.json')) as abi_file:
-    #     abi = json.load(abi_file)['result']
-
-    def __init__(self, rpc_url, public_key, private_key, owl_public=None, owl_private=None, chain='ethereum'):
-        self.w3 = Web3(Web3.WebsocketProvider(rpc_url))
-        self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    def __init__(self, rpc_url, public_key, private_key, chain='ethereum'):
+        self.w3 = Web3(Web3.HTTPProvider(rpc_url))
+        if chain == 'polygon' or chain == 'avalanche':
+            self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        else:
+            pass
         self.public_key = public_key
         self.private_key = private_key
         self.chain = chain
         self.chain_id = self.chains[chain]
-        self.owl_public = owl_public
-        self.owl_private = owl_private
 
     def estimate_gas_fees(self, speed="fast", nb_blocks=3):
         if speed not in self.MODE:
@@ -257,18 +255,28 @@ class TransactionHelper:
 
         # Estimations: maxFee - (maxPriorityFee + baseFee actually paid) = Returned to used
         return {"maxPriorityFeePerGas": avg_reward,
-                "maxFeePerGas": avg_reward + next_base_fee}, base_fee, next_base_fee
+                "maxFeePerGas": avg_reward + next_base_fee}
 
-        # Merge to your txn to easily get gas fees: txn = txn | eip1559.estimate_gas_fees(w3)
-
-    def build_tx(self, raw_tx):
+    def build_tx(self, raw_tx, speed='fast', nb_blocks=3):
         nonce = self.w3.eth.getTransactionCount(self.public_key)
         tx = raw_tx['tx']
         tx['nonce'] = nonce
-        tx['chainId'] = self.chain_id
+        tx['to'] = self.w3.toChecksumAddress(tx['to'])
+        tx['chainId'] = int(self.chain_id)
+        tx['value'] = int(tx['value'])
+        tx['gas'] = int(tx['gas'] * 1.25)
+        if self.chain == 'ethereum' or self.chain == 'polygon' or self.chain == 'avalanche':
+            gas = self.estimate_gas_fees(speed, nb_blocks)
+            tx['maxPriorityFeePerGas'] = gas['maxPriorityFeePerGas']
+            tx['maxFeePerGas'] = gas['maxFeePerGas']
+            tx.pop('gasPrice')
+        elif self.chain == 'binance':
+            tx['gasPrice'] = int(tx['gasPrice'])
+        else:
+            print('Chain Unsupported at this time')
         return tx
 
-    def sign_tx(self, tx, open_browser=False, await_receipt=True):
+    def sign_tx(self, tx):
         signed_tx = self.w3.eth.account.sign_transaction(tx, self.private_key)
         return signed_tx
 
@@ -282,10 +290,9 @@ class TransactionHelper:
         contract = self.w3.eth.contract(address=self.w3.toChecksumAddress(contract_address), abi=self.abi)
         balance_in_wei = contract.functions.balanceOf(self.public_key).call()
         if decimal is None:
-            balance_in_eth = self.w3.fromWei(balance_in_wei, 'ether')
+            return self.w3.fromWei(balance_in_wei, 'ether')
         else:
-            balance_in_eth = balance_in_wei / 10 ** decimal
-        return balance_in_eth
+            return balance_in_wei / 10 ** decimal
 
 
 if __name__ == '__main__':
