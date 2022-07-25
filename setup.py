@@ -8,7 +8,7 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name='1inch.py',
-    version='1.0.3',
+    version='1.5.0',
     url='https://github.com/RichardAtCT/1inch_wrapper',
     long_description_content_type="text/markdown",
     long_description=long_description,

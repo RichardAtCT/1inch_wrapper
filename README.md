@@ -3,6 +3,7 @@
 ![1inch.py](https://github.com/RichardAtCT/1inch_wrapper/blob/master/1inchpy.png)
 
 1inch_wrapper is a wrapper around the 1inch swap API. It has full coverage of the swap API endpoint. All chains support by 1inch are included in the wrapper. 
+Package also includes a helper method to ease the submission of transactions to the network. Limited chains currently supported. 
 
 ## API Documentation
 The full 1inch swap API docs can be found at https://docs.1inch.io/
@@ -17,10 +18,29 @@ pip install 1inch.py
 ## Usage
 
 ```python
-from oneinch_py import OneInchSwap
+from oneinch_py import OneInchSwap, TransactionHelper
+
+rpc_url = "yourRPCURL.com"
+binance_rpc = "adifferentRPCurl.com"
+public_key = "yourWalletAddress"
+private_key = "yourPrivateKey" #remember to protect your private key. Using environmental variables is recommended. 
 
 exchange = OneInchSwap('eth_address')
 bsc_exchange = OneInchSwap('eth_address', chain='binance')
+helper = TransactionHelper(rpc_url, public_key, private_key)
+bsc_helper = TransactionHelper(binance_rpc, public_key, private_key, chain='binance')
+
+# See chains currently supported by the helper method:
+helper.chains
+# {"ethereum": "1", "binance": "56", "polygon": "137", "avalanche": "43114"}
+
+# Straight to business:
+# Get a swap and do the swap
+result = exchange.get_swap("USDT", "ETH", 10, 0.5) # get the swap transaction
+result = helper.build_tx(result) # prepare the transaction for signing, gas price defaults to fast.
+result = helper.sign_tx(result) # sign the transaction using your private key
+result = helper.broadcast_tx(result) #broadcast the transaction to the network and wait for the receipt. 
+
 
 exchange.health_check()
 # 'OK'

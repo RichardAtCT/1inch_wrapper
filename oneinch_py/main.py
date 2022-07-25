@@ -1,6 +1,10 @@
+import json
 import requests
-import web3
+from web3 import Web3
 from decimal import *
+import importlib.resources as pkg_resources
+from functools import reduce
+from web3.middleware import geth_poa_middleware
 
 
 class UnknownToken(Exception):
@@ -188,6 +192,107 @@ class OneInchSwap:
         url = url + f"?tokenAddress={from_address}&amount={amount_in_wei}"
         result = self._get(url)
         return result
+
+
+class TransactionHelper:
+
+    gas_oracles = {
+        # "ethereum": 'https://etherchain.org/api/gasnow',
+        "binance": 'https://gbsc.blockscan.com/gasapi.ashx?apikey=key&method=gasoracle',
+        # "polygon": "https://gasstation-mainnet.matic.network/",
+        # "optimism": "10",
+        # "arbitrum": "https://owlracle.info/arb/gas?apikey=877d078a2753422d8a6fbd3d092f5ddb",
+        # "gnosis": "https://blockscout.com/xdai/mainnet/api/v1/gas-price-oracle",
+        # "avalanche": "https://gavax.blockscan.com/gasapi.ashx?apikey=key&method=gasoracle",
+        # "fantom": "https://owlracle.info/ftm/gas?apikey=877d078a2753422d8a6fbd3d092f5ddb"
+    }
+
+    chains = {
+        "ethereum": '1',
+        "binance": '56',
+        "polygon": "137",
+        # "optimism": "10",
+        # "arbitrum": "42161",
+        # "gnosis": "100",
+        "avalanche": "43114",
+        # "fantom": "250"
+    }
+
+    MODE = {
+        "slow": [10, 20, 30, 40, 50],  # <1min
+        "normal": [10, 30, 50, 70, 90],  # <30sec
+        "fast": [50, 60, 70, 80, 90],  # <10sec
+    }
+
+    abi = json.loads(pkg_resources.read_text(__package__, 'erc20.json'))['result']
+
+    def __init__(self, rpc_url, public_key, private_key, chain='ethereum'):
+        self.w3 = Web3(Web3.HTTPProvider(rpc_url))
+        if chain == 'polygon' or chain == 'avalanche':
+            self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        else:
+            pass
+        self.public_key = public_key
+        self.private_key = private_key
+        self.chain = chain
+        self.chain_id = self.chains[chain]
+
+    def estimate_gas_fees(self, speed="fast", nb_blocks=3):
+        if speed not in self.MODE:
+            raise ValueError("Invalid speed")
+
+        # baseFee: Set by blockchain, varies at each block, always burned
+        base_fee = self.w3.eth.get_block('pending').baseFeePerGas
+
+        # next baseFee: Overestimation of baseFee in next block, difference always refunded
+        next_base_fee = base_fee * 2
+
+        # priorityFee: Set by user, tip/reward paid directly to miners, never returned
+        reward_history = self.w3.eth.fee_history(
+            nb_blocks, 'pending', self.MODE[speed])['reward']
+        rewards = reduce(lambda x, y: x + y, reward_history)
+        avg_reward = sum(rewards) // len(rewards)
+
+        # Estimations: maxFee - (maxPriorityFee + baseFee actually paid) = Returned to used
+        return {"maxPriorityFeePerGas": avg_reward,
+                "maxFeePerGas": avg_reward + next_base_fee}
+
+    def build_tx(self, raw_tx, speed='fast', nb_blocks=3):
+        nonce = self.w3.eth.getTransactionCount(self.public_key)
+        tx = raw_tx['tx']
+        tx['nonce'] = nonce
+        tx['to'] = self.w3.toChecksumAddress(tx['to'])
+        tx['chainId'] = int(self.chain_id)
+        tx['value'] = int(tx['value'])
+        tx['gas'] = int(tx['gas'] * 1.25)
+        if self.chain == 'ethereum' or self.chain == 'polygon' or self.chain == 'avalanche':
+            gas = self.estimate_gas_fees(speed, nb_blocks)
+            tx['maxPriorityFeePerGas'] = gas['maxPriorityFeePerGas']
+            tx['maxFeePerGas'] = gas['maxFeePerGas']
+            tx.pop('gasPrice')
+        elif self.chain == 'binance':
+            tx['gasPrice'] = int(tx['gasPrice'])
+        else:
+            print('Chain Unsupported at this time')
+        return tx
+
+    def sign_tx(self, tx):
+        signed_tx = self.w3.eth.account.sign_transaction(tx, self.private_key)
+        return signed_tx
+
+    def broadcast_tx(self, signed_tx, timeout=360):
+        tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+        print(tx_hash.hex())
+        receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
+        return receipt, tx_hash.hex()
+
+    def get_ERC20_balance(self, contract_address, decimal=None):
+        contract = self.w3.eth.contract(address=self.w3.toChecksumAddress(contract_address), abi=self.abi)
+        balance_in_wei = contract.functions.balanceOf(self.public_key).call()
+        if decimal is None:
+            return self.w3.fromWei(balance_in_wei, 'ether')
+        else:
+            return balance_in_wei / 10 ** decimal
 
 
 if __name__ == '__main__':
