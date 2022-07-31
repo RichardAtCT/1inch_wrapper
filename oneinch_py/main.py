@@ -5,8 +5,6 @@ from decimal import *
 import importlib.resources as pkg_resources
 from functools import reduce
 from web3.middleware import geth_poa_middleware
-from eth_abi import decode_abi
-
 
 
 class UnknownToken(Exception):
@@ -297,7 +295,6 @@ class TransactionHelper:
 
 
 class OneInchOracle:
-
     chains = {
         "ethereum": '1',
         "binance": '56',
@@ -318,8 +315,6 @@ class OneInchOracle:
         "gnosis": "0x142DB045195CEcaBe415161e1dF1CF0337A4d02E",
         "avalanche": "0xBd0c7AaF0bF082712EbE919a9dD94b2d978f79A9",
         "fantom": "0xE8E598A1041b6fDB13999D275a202847D9b654ca"
-
-       
     }
 
     # multicall_address = "0xDA3C19c6Fe954576707fA24695Efb830D9ccA1CA"
@@ -355,7 +350,6 @@ class OneInchOracle:
         elif src_token_decimal < 18:
             rate = rate / 10 ** ((18 - src_token_decimal) + 18)
         return rate
-        
 # TODO Figure this all out at some point
     # def get_multicall(self, token_list):
     #     for address in token_list:
@@ -369,7 +363,6 @@ class OneInchOracle:
     #     # mapped = list(mapped)
     #     # rate = self.multicall_contract.functions.multicall(mapped).call()
     #     return
-
 
 
 
