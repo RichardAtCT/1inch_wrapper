@@ -1,6 +1,6 @@
 # 1inch.py
 
-![1inch.py](https://github.com/RichardAtCT/1inch_wrapper/blob/master/1inchpy.png)
+![1inch.py](https://raw.githubusercontent.com/RichardAtCT/1inch_wrapper/master/1inchpy.png)
 
 1inch.py is a wrapper around the 1inch API and price Oracle. It has full coverage of the swap API endpoint and All chains support by 1inch are included in the OneInchSwap and OneInchOracle methods. 
 Package also includes a helper method to ease the submission of transactions to the network. Limited chains currently supported. 
