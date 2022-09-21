@@ -336,11 +336,12 @@ class OneInchOracle:
 
     def get_rate(self, src_token, dst_token, wrap=False, src_token_decimal=18, dst_token_decimal=18):
         rate = self.oracle_contract.functions.getRate(self.w3.toChecksumAddress(src_token), self.w3.toChecksumAddress(dst_token), wrap).call()
+
         # print((10 ** src_token_decimal) * (10 ** dst_token_decimal))
         # rate = str(rate)
         # rate = bytes.fromhex(rate)
         # rate = decode_abi('uint256', rate)
-        # rate = rate / ((10 ** src_token_decimal) * (10 ** dst_token_decimal))
+        rate = rate / 10 ** 18
         return rate
 
 
