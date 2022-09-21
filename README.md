@@ -1,15 +1,15 @@
-# 1inch_wrapper
+# 1inch.py
 
-![1inch.py](https://github.com/RichardAtCT/1inch_wrapper/blob/master/1inchpy.png)
+![1inch.py](https://raw.githubusercontent.com/RichardAtCT/1inch_wrapper/master/1inchpy.png)
 
-1inch_wrapper is a wrapper around the 1inch swap API. It has full coverage of the swap API endpoint. All chains support by 1inch are included in the wrapper. 
+1inch.py is a wrapper around the 1inch API and price Oracle. It has full coverage of the swap API endpoint and All chains support by 1inch are included in the OneInchSwap and OneInchOracle methods. 
 Package also includes a helper method to ease the submission of transactions to the network. Limited chains currently supported. 
 
 ## API Documentation
 The full 1inch swap API docs can be found at https://docs.1inch.io/
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install 1inch_wrapper.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install 1inch.py.
 
 ```bash
 pip install 1inch.py
@@ -18,7 +18,7 @@ pip install 1inch.py
 ## Usage
 
 ```python
-from oneinch_py import OneInchSwap, TransactionHelper
+from oneinch_py import OneInchSwap, TransactionHelper, OneInchOracle
 
 rpc_url = "yourRPCURL.com"
 binance_rpc = "adifferentRPCurl.com"
@@ -29,6 +29,7 @@ exchange = OneInchSwap('eth_address')
 bsc_exchange = OneInchSwap('eth_address', chain='binance')
 helper = TransactionHelper(rpc_url, public_key, private_key)
 bsc_helper = TransactionHelper(binance_rpc, public_key, private_key, chain='binance')
+oracle = OneInchOracle(rpc_url, chain='ethereum')
 
 # See chains currently supported by the helper method:
 helper.chains
@@ -41,6 +42,11 @@ result = helper.build_tx(result) # prepare the transaction for signing, gas pric
 result = helper.sign_tx(result) # sign the transaction using your private key
 result = helper.broadcast_tx(result) #broadcast the transaction to the network and wait for the receipt. 
 
+#USDT to ETH price on the Oracle. Note that you need to indicate the token decimal if it is anything other than 18.
+oracle.get_rate_to_ETH("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", src_token_decimal=6)
+
+# Get the rate between any two tokens.
+oracle.get_rate(src_token="0x6B175474E89094C44Da98b954EedeAC495271d0F", dst_token="0x111111111117dC0aa78b770fA6A738034120C302")
 
 exchange.health_check()
 # 'OK'

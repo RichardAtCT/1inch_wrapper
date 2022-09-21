@@ -8,6 +8,7 @@ from web3.middleware import geth_poa_middleware
 from eth_abi import decode_abi
 
 
+
 class UnknownToken(Exception):
     pass
 
@@ -196,7 +197,6 @@ class OneInchSwap:
 
 
 class TransactionHelper:
-
     gas_oracles = {
         # "ethereum": 'https://etherchain.org/api/gasnow',
         "binance": 'https://gbsc.blockscan.com/gasapi.ashx?apikey=key&method=gasoracle',
@@ -317,32 +317,58 @@ class OneInchOracle:
         "arbitrum": "0x735247fb0a604c0adC6cab38ACE16D0DbA31295F",
         "gnosis": "0x142DB045195CEcaBe415161e1dF1CF0337A4d02E",
         "avalanche": "0xBd0c7AaF0bF082712EbE919a9dD94b2d978f79A9",
-        # "fantom": "250"
+        "fantom": "0xE8E598A1041b6fDB13999D275a202847D9b654ca"
+
+       
     }
 
+    # multicall_address = "0xDA3C19c6Fe954576707fA24695Efb830D9ccA1CA"
+
     oracle_abi = json.loads(pkg_resources.read_text(__package__, 'oracle.json'))['result']
+    # multicall_abi = json.loads(pkg_resources.read_text(__package__, 'multicall.json'))['result']
 
     def __init__(self, rpc_url, chain='ethereum'):
         self.w3 = Web3(Web3.HTTPProvider(rpc_url))
-        if chain == 'polygon' or chain == 'avalanche':
-            self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-        else:
-            pass
         self.chain = chain
         self.chain_id = self.chains[chain]
         self.contract_address = self.contracts[chain]
-        # print(self.contract_address)
         self.oracle_contract = self.w3.eth.contract(address=self.contract_address, abi=self.oracle_abi)
+        # self.multicall_contract = self.w3.eth.contract(address=self.multicall_address, abi=self.multicall_abi)
 
-    def get_rate(self, src_token, dst_token, wrap=False, src_token_decimal=18, dst_token_decimal=18):
-        rate = self.oracle_contract.functions.getRate(self.w3.toChecksumAddress(src_token), self.w3.toChecksumAddress(dst_token), wrap).call()
-
-        # print((10 ** src_token_decimal) * (10 ** dst_token_decimal))
-        # rate = str(rate)
-        # rate = bytes.fromhex(rate)
-        # rate = decode_abi('uint256', rate)
-        rate = rate / 10 ** 18
+    def get_rate(self, src_token, dst_token, wrap=False, src_token_decimal: int = 18, dst_token_decimal: int = 18):
+        rate = self.oracle_contract.functions.getRate(self.w3.toChecksumAddress(src_token),
+                                                      self.w3.toChecksumAddress(dst_token), wrap).call()
+        if src_token_decimal == 18 and dst_token_decimal < 18:
+            rate = rate / 10 ** dst_token_decimal
+        elif dst_token_decimal == 18 and src_token_decimal < 18:
+            rate = rate / 10 ** ((18 - src_token_decimal) + 18)
+        elif dst_token_decimal < 18 and src_token_decimal < 18:
+            rate = rate / 10 ** ((18 - src_token_decimal) + (18 - dst_token_decimal))
+        else:
+            rate = rate / 10 ** 18
         return rate
+
+    def get_rate_to_ETH(self, src_token, wrap=False, src_token_decimal=18):
+        rate = self.oracle_contract.functions.getRateToEth(self.w3.toChecksumAddress(src_token), wrap).call()
+        if src_token_decimal == 18:
+            rate = rate / 10 ** 18
+        elif src_token_decimal < 18:
+            rate = rate / 10 ** ((18 - src_token_decimal) + 18)
+        return rate
+        
+# TODO Figure this all out at some point
+    # def get_multicall(self, token_list):
+    #     for address in token_list:
+    #         call_data = {
+    #             "to": "0x07D91f5fb9Bf7798734C3f606dB065549F6893bb",
+    #             "data": f"{self.oracle_contract.functions.getRateToEth(address,True)}"
+    #         }
+    #
+    #     print(call_data)
+    #     # mapped = map(lambda , token_list, wrap_list)
+    #     # mapped = list(mapped)
+    #     # rate = self.multicall_contract.functions.multicall(mapped).call()
+    #     return
 
 
 
