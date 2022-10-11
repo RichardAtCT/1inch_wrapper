@@ -25,8 +25,8 @@ binance_rpc = "adifferentRPCurl.com"
 public_key = "yourWalletAddress"
 private_key = "yourPrivateKey" #remember to protect your private key. Using environmental variables is recommended. 
 
-exchange = OneInchSwap('eth_address')
-bsc_exchange = OneInchSwap('eth_address', chain='binance')
+exchange = OneInchSwap(public_key)
+bsc_exchange = OneInchSwap(public_key, chain='binance')
 helper = TransactionHelper(rpc_url, public_key, private_key)
 bsc_helper = TransactionHelper(binance_rpc, public_key, private_key, chain='binance')
 oracle = OneInchOracle(rpc_url, chain='ethereum')
