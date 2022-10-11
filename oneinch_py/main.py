@@ -5,7 +5,6 @@ from decimal import *
 import importlib.resources as pkg_resources
 from functools import reduce
 from web3.middleware import geth_poa_middleware
-from eth_abi import encode
 
 
 class UnknownToken(Exception):
