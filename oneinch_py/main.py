@@ -231,7 +231,7 @@ class TransactionHelper:
             payload = None
         return payload
 
-    def __init__(self, rpc_url, public_key, private_key, chain='ethereum'):
+    def __init__(self, rpc_url, public_key, private_key, chain='ethereum', broadcast_1inch=False):
         self.w3 = Web3(Web3.HTTPProvider(rpc_url))
         if chain == 'polygon' or chain == 'avalanche':
             self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
@@ -241,26 +241,27 @@ class TransactionHelper:
         self.private_key = private_key
         self.chain = chain
         self.chain_id = self.chains[chain]
+        self.broadcast_1inch = broadcast_1inch
 
-    def estimate_gas_fees(self, speed="fast", nb_blocks=3):
-        if speed not in self.MODE:
-            raise ValueError("Invalid speed")
-
-        # baseFee: Set by blockchain, varies at each block, always burned
-        base_fee = self.w3.eth.get_block('pending').baseFeePerGas
-
-        # next baseFee: Overestimation of baseFee in next block, difference always refunded
-        next_base_fee = base_fee * 2
-
-        # priorityFee: Set by user, tip/reward paid directly to miners, never returned
-        reward_history = self.w3.eth.fee_history(
-            nb_blocks, 'pending', self.MODE[speed])['reward']
-        rewards = reduce(lambda x, y: x + y, reward_history)
-        avg_reward = sum(rewards) // len(rewards)
-
-        # Estimations: maxFee - (maxPriorityFee + baseFee actually paid) = Returned to used
-        return {"maxPriorityFeePerGas": avg_reward,
-                "maxFeePerGas": avg_reward + next_base_fee}
+    # def estimate_gas_fees(self, speed="fast", nb_blocks=3):
+    #     if speed not in self.MODE:
+    #         raise ValueError("Invalid speed")
+    #
+    #     # baseFee: Set by blockchain, varies at each block, always burned
+    #     base_fee = self.w3.eth.get_block('pending').baseFeePerGas
+    #
+    #     # next baseFee: Overestimation of baseFee in next block, difference always refunded
+    #     next_base_fee = base_fee * 2
+    #
+    #     # priorityFee: Set by user, tip/reward paid directly to miners, never returned
+    #     reward_history = self.w3.eth.fee_history(
+    #         nb_blocks, 'pending', self.MODE[speed])['reward']
+    #     rewards = reduce(lambda x, y: x + y, reward_history)
+    #     avg_reward = sum(rewards) // len(rewards)
+    #
+    #     # Estimations: maxFee - (maxPriorityFee + baseFee actually paid) = Returned to used
+    #     return {"maxPriorityFeePerGas": avg_reward,
+    #             "maxFeePerGas": avg_reward + next_base_fee}
 
     def build_tx(self, raw_tx, speed='high'):
         nonce = self.w3.eth.getTransactionCount(self.public_key)
@@ -274,8 +275,8 @@ class TransactionHelper:
             gas = self._get(self.gas_oracle+self.chain_id)
             # print(gas)
             # gas = requests.get(self.gas_oracle, params=self.chain_id)
-            tx['maxPriorityFeePerGas'] = gas[speed]['maxPriorityFeePerGas']
-            tx['maxFeePerGas'] = gas[speed]['maxFeePerGas']
+            tx['maxPriorityFeePerGas'] = int(gas[speed]['maxPriorityFeePerGas'])
+            tx['maxFeePerGas'] = int(gas[speed]['maxFeePerGas'])
             tx.pop('gasPrice')
         else:
             tx['gasPrice'] = int(tx['gasPrice'])
@@ -286,10 +287,16 @@ class TransactionHelper:
         return signed_tx
 
     def broadcast_tx(self, signed_tx, timeout=360):
-        tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-        print(tx_hash.hex())
-        receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
-        return receipt, tx_hash.hex()
+        if self.broadcast_1inch is True:
+            tx_hash = requests.post('https://tx-gateway.1inch.io/v1.1/' + self.chain_id + '/broadcast', data=signed_tx.rawTransaction)
+            print(tx_hash)
+            receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
+            return receipt, tx_hash.hex()
+        else:
+            tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+            print(tx_hash.hex())
+            receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
+            return receipt, tx_hash.hex()
 
     def get_ERC20_balance(self, contract_address, decimal=None):
         contract = self.w3.eth.contract(address=self.w3.toChecksumAddress(contract_address), abi=self.abi)
