@@ -3,7 +3,6 @@ import requests
 from web3 import Web3
 from decimal import *
 import importlib.resources as pkg_resources
-from functools import reduce
 from web3.middleware import geth_poa_middleware
 
 
@@ -288,10 +287,13 @@ class TransactionHelper:
 
     def broadcast_tx(self, signed_tx, timeout=360):
         if self.broadcast_1inch is True:
-            tx_hash = requests.post('https://tx-gateway.1inch.io/v1.1/' + self.chain_id + '/broadcast', data=signed_tx.rawTransaction)
-            print(tx_hash)
+            tx_json = signed_tx.rawTransaction
+            tx_json = {"rawTransaction": tx_json.hex()}
+            payload = requests.post('https://tx-gateway.1inch.io/v1.1/' + self.chain_id + '/broadcast', data=self.w3.toJSON(tx_json), headers={"accept": "application/json, text/plain, */*", "content-type": "application/json"})
+            tx_hash = json.loads(payload.text)
+            tx_hash = tx_hash['transactionHash']
             receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
-            return receipt, tx_hash.hex()
+            return receipt, tx_hash
         else:
             tx_hash = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
             print(tx_hash.hex())
@@ -376,7 +378,6 @@ class OneInchOracle:
     #     # mapped = list(mapped)
     #     # rate = self.multicall_contract.functions.multicall(mapped).call()
     #     return
-
 
 
 if __name__ == '__main__':
