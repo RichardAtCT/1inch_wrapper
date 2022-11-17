@@ -14,7 +14,8 @@ class OneInchSwap:
     base_url = 'https://api.1inch.exchange'
 
     version = {
-        "v4.0": "v4.0"
+        "v4.0": "v4.0",
+        "v5.0": "v5.0"
     }
 
     chains = {
@@ -28,7 +29,7 @@ class OneInchSwap:
         "fantom": "250"
     }
 
-    def __init__(self, address, chain='ethereum', version='v4.0'):
+    def __init__(self, address, chain='ethereum', version='v5.0'):
         self.presets = None
         self.tokens = {}
         self.tokens_by_address = {}
