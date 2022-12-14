@@ -1,4 +1,1 @@
-include oneinch_py/erc20.json
-include oneinch_py/oracle.json
-include oneinch_py/multicall.json
-
+recursive-include oneinch_py *
