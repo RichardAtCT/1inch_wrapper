@@ -187,9 +187,12 @@ class OneInchSwap:
 
     def get_approve(self, from_token_symbol: str, amount=None):
         from_address = self._token_to_address(from_token_symbol)
-        amount_in_wei = Decimal(amount * 10 ** self.tokens[from_token_symbol]['decimals'])
         url = f'{self.base_url}/{self.version}/{self.chain_id}/approve/transaction'
-        url = url + f"?tokenAddress={from_address}&amount={amount_in_wei}"
+        if amount is None:
+            url = url + f"?tokenAddress={from_address}"
+        else:
+            amount_in_wei = Decimal(amount * 10 ** self.tokens[from_token_symbol]['decimals'])
+            url = url + f"?tokenAddress={from_address}&amount={amount_in_wei}"
         result = self._get(url)
         return result
 
@@ -265,9 +268,19 @@ class TransactionHelper:
 
     def build_tx(self, raw_tx, speed='high'):
         nonce = self.w3.eth.getTransactionCount(self.public_key)
-        tx = raw_tx['tx']
-        tx['nonce'] = nonce
+        if 'tx' in raw_tx:
+            tx = raw_tx['tx']
+        else:
+            tx = raw_tx
+        if 'from' not in tx:
+            tx['from'] = self.w3.toChecksumAddress(self.public_key)
         tx['to'] = self.w3.toChecksumAddress(tx['to'])
+        if 'gas' not in tx:
+            tx['gas'] = self.w3.eth.estimate_gas(tx)
+        else:
+            pass
+        tx['nonce'] = nonce
+
         tx['chainId'] = int(self.chain_id)
         tx['value'] = int(tx['value'])
         tx['gas'] = int(tx['gas'] * 1.25)
