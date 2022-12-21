@@ -130,7 +130,7 @@ class OneInchSwap:
                 decimal = self.tokens[from_token_symbol]['decimals']
         else:
             pass
-        amount_in_wei = Decimal(amount * 10 ** decimal)
+        amount_in_wei = int(amount * 10 ** decimal)
         url = f'{self.base_url}/{self.version}/{self.chain_id}/quote'
         url = url + f'?fromTokenAddress={from_address}&toTokenAddress={to_address}&amount={amount_in_wei}'
         if kwargs is not None:
@@ -166,7 +166,7 @@ class OneInchSwap:
                 decimal = self.tokens[from_token_symbol]['decimals']
         else:
             pass
-        amount_in_wei = Decimal(amount * 10 ** decimal)
+        amount_in_wei = int(amount * 10 ** decimal)
         url = f'{self.base_url}/{self.version}/{self.chain_id}/swap'
         url = url + f'?fromTokenAddress={from_address}&toTokenAddress={to_address}&amount={amount_in_wei}'
         url = url + f'&fromAddress={send_address}&slippage={slippage}'
