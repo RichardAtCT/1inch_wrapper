@@ -277,10 +277,7 @@ class TransactionHelper:
         tx['to'] = self.w3.toChecksumAddress(tx['to'])
         if 'gas' not in tx:
             tx['gas'] = self.w3.eth.estimate_gas(tx)
-        else:
-            pass
         tx['nonce'] = nonce
-
         tx['chainId'] = int(self.chain_id)
         tx['value'] = int(tx['value'])
         tx['gas'] = int(tx['gas'] * 1.25)
