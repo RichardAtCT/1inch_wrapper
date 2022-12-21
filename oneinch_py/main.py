@@ -114,7 +114,7 @@ class OneInchSwap:
         self.presets = result
         return self.presets
 
-    def get_quote(self, from_token_symbol: str, to_token_symbol: str, amount: float, decimal=None, **kwargs):
+    def get_quote(self, from_token_symbol: str, to_token_symbol: str, amount: Decimal, decimal=None, **kwargs):
         """
         Calls the QUOTE API endpoint. NOTE: When using custom tokens, the token decimal is assumed to be 18. If your
         custom token has a different decimal - please manually pass it to the function (decimal=x)
@@ -146,7 +146,7 @@ class OneInchSwap:
         return result, rate
 
     def get_swap(self, from_token_symbol: str, to_token_symbol: str,
-                 amount: float, slippage: float, decimal=None, send_address=None, **kwargs):
+                 amount: Decimal, slippage: Decimal, decimal=None, send_address=None, **kwargs):
         """
         Calls the SWAP API endpoint. NOTE: When using custom tokens, the token decimal is assumed to be 18. If your
         custom token has a different decimal - please manually pass it to the function (decimal=x)
