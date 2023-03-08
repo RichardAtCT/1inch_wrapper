@@ -185,13 +185,22 @@ class OneInchSwap:
         result = self._get(url)
         return result
 
-    def get_approve(self, from_token_symbol: str, amount=None):
+    def get_approve(self, from_token_symbol: str, amount=None, decimal=None):
         from_address = self._token_to_address(from_token_symbol)
+        if decimal is None:
+            try:
+                self.tokens[from_token_symbol]['decimals']
+            except KeyError:
+                decimal = 18
+            else:
+                decimal = self.tokens[from_token_symbol]['decimals']
+        else:
+            pass
         url = f'{self.base_url}/{self.version}/{self.chain_id}/approve/transaction'
         if amount is None:
             url = url + f"?tokenAddress={from_address}"
         else:
-            amount_in_wei = Decimal(amount * 10 ** self.tokens[from_token_symbol]['decimals'])
+            amount_in_wei = Decimal(amount * 10 ** decimal)
             url = url + f"?tokenAddress={from_address}&amount={amount_in_wei}"
         result = self._get(url)
         return result
