@@ -200,7 +200,7 @@ class OneInchSwap:
         if amount is None:
             url = url + f"?tokenAddress={from_address}"
         else:
-            amount_in_wei = Decimal(amount * 10 ** decimal)
+            amount_in_wei = amount * 10 ** decimal
             url = url + f"?tokenAddress={from_address}&amount={amount_in_wei}"
         result = self._get(url)
         return result
