@@ -58,7 +58,7 @@ class OneInchSwap:
 
     def _token_to_address(self, token: str):
         if len(token) == 42:
-            return token
+            return self.w3.to_checksum_address(token)
         else:
             try:
                 address = self.tokens[token]['address']
