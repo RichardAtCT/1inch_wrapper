@@ -217,14 +217,12 @@ class TransactionHelper:
         "arbitrum": "42161",
         "gnosis": "100",
         "avalanche": "43114",
-        "fantom": "250"
+        "fantom": "250",
+        "klaytn": "8217",
+        "aurora": "1313161554"
+
     }
 
-    # MODE = {
-    #     "slow": [10, 20, 30, 40, 50],  # <1min
-    #     "normal": [10, 30, 50, 70, 90],  # <30sec
-    #     "fast": [50, 60, 70, 80, 90],  # <10sec
-    # }
 
     abi = json.loads(pkg_resources.read_text(__package__, 'erc20.json'))['result']
     abi_aggregator = json.loads(pkg_resources.read_text(__package__, 'aggregatorv5.json'))['result']
@@ -271,10 +269,8 @@ class TransactionHelper:
         tx['chainId'] = int(self.chain_id)
         tx['value'] = int(tx['value'])
         tx['gas'] = int(tx['gas'] * 1.25)
-        if self.chain == 'ethereum' or self.chain == 'polygon' or self.chain == 'avalanche' or self.chain == 'gnosis':
+        if self.chain == 'ethereum' or self.chain == 'polygon' or self.chain == 'avalanche' or self.chain == 'gnosis' or self.chain == 'klaytn':
             gas = self._get(self.gas_oracle+self.chain_id)
-            # print(gas)
-            # gas = requests.get(self.gas_oracle, params=self.chain_id)
             tx['maxPriorityFeePerGas'] = int(gas[speed]['maxPriorityFeePerGas'])
             tx['maxFeePerGas'] = int(gas[speed]['maxFeePerGas'])
             tx.pop('gasPrice')
