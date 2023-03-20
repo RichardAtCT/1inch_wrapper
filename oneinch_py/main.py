@@ -227,6 +227,7 @@ class TransactionHelper:
     # }
 
     abi = json.loads(pkg_resources.read_text(__package__, 'erc20.json'))['result']
+    abi_aggregator = json.loads(pkg_resources.read_text(__package__, 'aggregatorv5.json'))['result']
 
     @staticmethod
     def _get(url, params=None, headers=None):
@@ -254,26 +255,6 @@ class TransactionHelper:
         self.chain = chain
         self.chain_id = self.chains[chain]
         self.broadcast_1inch = broadcast_1inch
-
-    # def estimate_gas_fees(self, speed="fast", nb_blocks=3):
-    #     if speed not in self.MODE:
-    #         raise ValueError("Invalid speed")
-    #
-    #     # baseFee: Set by blockchain, varies at each block, always burned
-    #     base_fee = self.w3.eth.get_block('pending').baseFeePerGas
-    #
-    #     # next baseFee: Overestimation of baseFee in next block, difference always refunded
-    #     next_base_fee = base_fee * 2
-    #
-    #     # priorityFee: Set by user, tip/reward paid directly to miners, never returned
-    #     reward_history = self.w3.eth.fee_history(
-    #         nb_blocks, 'pending', self.MODE[speed])['reward']
-    #     rewards = reduce(lambda x, y: x + y, reward_history)
-    #     avg_reward = sum(rewards) // len(rewards)
-    #
-    #     # Estimations: maxFee - (maxPriorityFee + baseFee actually paid) = Returned to used
-    #     return {"maxPriorityFeePerGas": avg_reward,
-    #             "maxFeePerGas": avg_reward + next_base_fee}
 
     def build_tx(self, raw_tx, speed='high'):
         nonce = self.w3.eth.get_transaction_count(self.public_key)
@@ -327,6 +308,12 @@ class TransactionHelper:
             return self.w3.from_wei(balance_in_wei, 'ether')
         else:
             return balance_in_wei / 10 ** decimal
+
+    def decode_abi(self, transaction):
+        contract = self.w3.eth.contract(address=self.w3.to_checksum_address('0x1111111254EEB25477B68fb85Ed929f73A960582'), abi=self.abi_aggregator)
+        data = transaction['tx']['data']
+        decoded_data = contract.decode_function_input(data)
+        return decoded_data
 
 
 class OneInchOracle:
