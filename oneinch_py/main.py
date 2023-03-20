@@ -58,7 +58,7 @@ class OneInchSwap:
 
     def _token_to_address(self, token: str):
         if len(token) == 42:
-            return token
+            return self.w3.to_checksum_address(token)
         else:
             try:
                 address = self.tokens[token]['address']
@@ -276,14 +276,14 @@ class TransactionHelper:
     #             "maxFeePerGas": avg_reward + next_base_fee}
 
     def build_tx(self, raw_tx, speed='high'):
-        nonce = self.w3.eth.getTransactionCount(self.public_key)
+        nonce = self.w3.eth.get_transaction_count(self.public_key)
         if 'tx' in raw_tx:
             tx = raw_tx['tx']
         else:
             tx = raw_tx
         if 'from' not in tx:
-            tx['from'] = self.w3.toChecksumAddress(self.public_key)
-        tx['to'] = self.w3.toChecksumAddress(tx['to'])
+            tx['from'] = self.w3.to_checksum_address(self.public_key)
+        tx['to'] = self.w3.to_checksum_address(tx['to'])
         if 'gas' not in tx:
             tx['gas'] = self.w3.eth.estimate_gas(tx)
         tx['nonce'] = nonce
@@ -321,10 +321,10 @@ class TransactionHelper:
             return receipt, tx_hash.hex()
 
     def get_ERC20_balance(self, contract_address, decimal=None):
-        contract = self.w3.eth.contract(address=self.w3.toChecksumAddress(contract_address), abi=self.abi)
+        contract = self.w3.eth.contract(address=self.w3.to_checksum_address(contract_address), abi=self.abi)
         balance_in_wei = contract.functions.balanceOf(self.public_key).call()
         if decimal is None:
-            return self.w3.fromWei(balance_in_wei, 'ether')
+            return self.w3.from_wei(balance_in_wei, 'ether')
         else:
             return balance_in_wei / 10 ** decimal
 
@@ -366,8 +366,8 @@ class OneInchOracle:
         # self.multicall_contract = self.w3.eth.contract(address=self.multicall_address, abi=self.multicall_abi)
 
     def get_rate(self, src_token, dst_token, wrap=False, src_token_decimal: int = 18, dst_token_decimal: int = 18):
-        rate = self.oracle_contract.functions.getRate(self.w3.toChecksumAddress(src_token),
-                                                      self.w3.toChecksumAddress(dst_token), wrap).call()
+        rate = self.oracle_contract.functions.getRate(self.w3.to_checksum_address(src_token),
+                                                      self.w3.to_checksum_address(dst_token), wrap).call()
         if src_token_decimal == 18 and dst_token_decimal < 18:
             rate = rate / 10 ** dst_token_decimal
         elif dst_token_decimal == 18 and src_token_decimal < 18:
@@ -379,7 +379,7 @@ class OneInchOracle:
         return rate
 
     def get_rate_to_ETH(self, src_token, wrap=False, src_token_decimal=18):
-        rate = self.oracle_contract.functions.getRateToEth(self.w3.toChecksumAddress(src_token), wrap).call()
+        rate = self.oracle_contract.functions.getRateToEth(self.w3.to_checksum_address(src_token), wrap).call()
         if src_token_decimal == 18:
             rate = rate / 10 ** 18
         elif src_token_decimal < 18:
