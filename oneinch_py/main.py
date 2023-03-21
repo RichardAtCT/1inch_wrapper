@@ -309,6 +309,11 @@ class TransactionHelper:
         else:
             return balance_in_wei / 10 ** decimal
 
+    def get_ERC20_balance_in_wei(self, contract_address):
+        contract = self.w3.eth.contract(address=self.w3.to_checksum_address(contract_address), abi=self.abi)
+        balance_in_wei = contract.functions.balanceOf(self.public_key).call()
+        return balance_in_wei
+        
     def decode_abi(self, transaction):
         contract = self.w3.eth.contract(address=self.w3.to_checksum_address('0x1111111254EEB25477B68fb85Ed929f73A960582'), abi=self.abi_aggregator)
         data = transaction['tx']['data']
