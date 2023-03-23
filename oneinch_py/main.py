@@ -130,7 +130,10 @@ class OneInchSwap:
                 decimal = self.tokens[from_token_symbol]['decimals']
         else:
             pass
-        amount_in_wei = Decimal(amount * 10 ** decimal)
+        if decimal == 0:
+            amount_in_wei = int(amount)
+        else:
+            amount_in_wei = int(amount * 10 ** decimal)
         url = f'{self.base_url}/{self.version}/{self.chain_id}/quote'
         url = url + f'?fromTokenAddress={from_address}&toTokenAddress={to_address}&amount={amount_in_wei}'
         if kwargs is not None:
@@ -166,7 +169,10 @@ class OneInchSwap:
                 decimal = self.tokens[from_token_symbol]['decimals']
         else:
             pass
-        amount_in_wei = Decimal(amount * 10 ** decimal)
+        if decimal == 0:
+            amount_in_wei = int(amount)
+        else:
+            amount_in_wei = int(amount * 10 ** decimal)
         url = f'{self.base_url}/{self.version}/{self.chain_id}/swap'
         url = url + f'?fromTokenAddress={from_address}&toTokenAddress={to_address}&amount={amount_in_wei}'
         url = url + f'&fromAddress={send_address}&slippage={slippage}'
@@ -200,7 +206,10 @@ class OneInchSwap:
         if amount is None:
             url = url + f"?tokenAddress={from_address}"
         else:
-            amount_in_wei = amount * 10 ** decimal
+            if decimal == 0:
+                amount_in_wei = int(amount)
+            else:
+                amount_in_wei = int(amount * 10 ** decimal)
             url = url + f"?tokenAddress={from_address}&amount={amount_in_wei}"
         result = self._get(url)
         return result
@@ -220,7 +229,6 @@ class TransactionHelper:
         "fantom": "250",
         "klaytn": "8217",
         "aurora": "1313161554"
-
     }
 
 
@@ -302,6 +310,8 @@ class TransactionHelper:
         balance_in_wei = contract.functions.balanceOf(self.public_key).call()
         if decimal is None:
             return self.w3.from_wei(balance_in_wei, 'ether')
+        elif decimal == 0:
+            return balance_in_wei
         else:
             return balance_in_wei / 10 ** decimal
 
