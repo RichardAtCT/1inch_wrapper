@@ -130,7 +130,10 @@ class OneInchSwap:
                 decimal = self.tokens[from_token_symbol]['decimals']
         else:
             pass
-        amount_in_wei = Decimal(amount * 10 ** decimal)
+        if decimal == 0:
+            amount_in_wei = int(amount)
+        else:
+            amount_in_wei = int(amount * 10 ** decimal)
         url = f'{self.base_url}/{self.version}/{self.chain_id}/quote'
         url = url + f'?fromTokenAddress={from_address}&toTokenAddress={to_address}&amount={amount_in_wei}'
         if kwargs is not None:
@@ -166,7 +169,10 @@ class OneInchSwap:
                 decimal = self.tokens[from_token_symbol]['decimals']
         else:
             pass
-        amount_in_wei = Decimal(amount * 10 ** decimal)
+        if decimal == 0:
+            amount_in_wei = int(amount)
+        else:
+            amount_in_wei = int(amount * 10 ** decimal)
         url = f'{self.base_url}/{self.version}/{self.chain_id}/swap'
         url = url + f'?fromTokenAddress={from_address}&toTokenAddress={to_address}&amount={amount_in_wei}'
         url = url + f'&fromAddress={send_address}&slippage={slippage}'
@@ -200,7 +206,10 @@ class OneInchSwap:
         if amount is None:
             url = url + f"?tokenAddress={from_address}"
         else:
-            amount_in_wei = amount * 10 ** decimal
+            if decimal == 0:
+                amount_in_wei = int(amount)
+            else:
+                amount_in_wei = int(amount * 10 ** decimal)
             url = url + f"?tokenAddress={from_address}&amount={amount_in_wei}"
         result = self._get(url)
         return result
@@ -217,14 +226,11 @@ class TransactionHelper:
         "arbitrum": "42161",
         "gnosis": "100",
         "avalanche": "43114",
-        "fantom": "250"
+        "fantom": "250",
+        "klaytn": "8217",
+        "aurora": "1313161554"
     }
 
-    # MODE = {
-    #     "slow": [10, 20, 30, 40, 50],  # <1min
-    #     "normal": [10, 30, 50, 70, 90],  # <30sec
-    #     "fast": [50, 60, 70, 80, 90],  # <10sec
-    # }
 
     abi = json.loads(pkg_resources.read_text(__package__, 'erc20.json'))['result']
     abi_aggregator = json.loads(pkg_resources.read_text(__package__, 'aggregatorv5.json'))['result']
@@ -271,10 +277,8 @@ class TransactionHelper:
         tx['chainId'] = int(self.chain_id)
         tx['value'] = int(tx['value'])
         tx['gas'] = int(tx['gas'] * 1.25)
-        if self.chain == 'ethereum' or self.chain == 'polygon' or self.chain == 'avalanche' or self.chain == 'gnosis':
+        if self.chain == 'ethereum' or self.chain == 'polygon' or self.chain == 'avalanche' or self.chain == 'gnosis' or self.chain == 'klaytn':
             gas = self._get(self.gas_oracle+self.chain_id)
-            # print(gas)
-            # gas = requests.get(self.gas_oracle, params=self.chain_id)
             tx['maxPriorityFeePerGas'] = int(gas[speed]['maxPriorityFeePerGas'])
             tx['maxFeePerGas'] = int(gas[speed]['maxFeePerGas'])
             tx.pop('gasPrice')
@@ -306,6 +310,8 @@ class TransactionHelper:
         balance_in_wei = contract.functions.balanceOf(self.public_key).call()
         if decimal is None:
             return self.w3.from_wei(balance_in_wei, 'ether')
+        elif decimal == 0:
+            return balance_in_wei
         else:
             return balance_in_wei / 10 ** decimal
 
