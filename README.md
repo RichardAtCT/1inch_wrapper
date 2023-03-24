@@ -17,6 +17,10 @@ pip install 1inch.py
 
 ## Usage
 
+A quick note on decimals. The wrapper is designed for ease of use, and as such accepts amounts in "Ether" or whole units. 
+If you prefer, you can use decimal=0 and specify amounts in wei. This will also help with any potential floating point errors. 
+
+
 ```python
 from oneinch_py import OneInchSwap, TransactionHelper, OneInchOracle
 
@@ -30,6 +34,7 @@ bsc_exchange = OneInchSwap(public_key, chain='binance')
 helper = TransactionHelper(rpc_url, public_key, private_key)
 bsc_helper = TransactionHelper(binance_rpc, public_key, private_key, chain='binance')
 oracle = OneInchOracle(rpc_url, chain='ethereum')
+
 
 # See chains currently supported by the helper method:
 helper.chains
