@@ -229,7 +229,7 @@ class TransactionHelper:
         "fantom": "250",
         "klaytn": "8217",
         "aurora": "1313161554",
-        'zsycn': "324"
+        'zksync': "324"
     }
 
 
