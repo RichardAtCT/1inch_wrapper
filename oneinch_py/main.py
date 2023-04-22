@@ -26,7 +26,10 @@ class OneInchSwap:
         "arbitrum": "42161",
         "gnosis": "100",
         "avalanche": "43114",
-        "fantom": "250"
+        "fantom": "250",
+        "klaytn": "8217",
+        "aurora": "1313161554",
+        'zksync': "324"
     }
 
     def __init__(self, address, chain='ethereum', version='v5.0'):
