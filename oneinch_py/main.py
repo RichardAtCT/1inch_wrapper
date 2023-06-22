@@ -11,7 +11,7 @@ class UnknownToken(Exception):
 
 
 class OneInchSwap:
-    base_url = 'https://api.1inch.exchange'
+    base_url = 'https://api.1inch.io'
 
     version = {
         "v4.0": "v4.0",
