@@ -1,3 +1,5 @@
+# THe recent changes to the API have broken the wrapper. I do not have the capacity at the moment to update it. Pull requests welcome.
+
 # 1inch.py
 
 ![1inch.py](https://raw.githubusercontent.com/RichardAtCT/1inch_wrapper/master/1inchpy.png)
