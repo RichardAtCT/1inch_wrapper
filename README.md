@@ -1,4 +1,3 @@
-# THe recent changes to the API have broken the wrapper. I do not have the capacity at the moment to update it. Pull requests welcome.
 
 # 1inch.py
 
@@ -30,9 +29,10 @@ rpc_url = "yourRPCURL.com"
 binance_rpc = "adifferentRPCurl.com"
 public_key = "yourWalletAddress"
 private_key = "yourPrivateKey" #remember to protect your private key. Using environmental variables is recommended. 
+api_key = "" # 1 Inch API key
 
-exchange = OneInchSwap(public_key)
-bsc_exchange = OneInchSwap(public_key, chain='binance')
+exchange = OneInchSwap(api_key, public_key)
+bsc_exchange = OneInchSwap(api_key, public_key, chain='binance')
 helper = TransactionHelper(rpc_url, public_key, private_key)
 bsc_helper = TransactionHelper(binance_rpc, public_key, private_key, chain='binance')
 oracle = OneInchOracle(rpc_url, chain='ethereum')

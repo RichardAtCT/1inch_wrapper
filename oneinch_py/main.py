@@ -11,11 +11,11 @@ class UnknownToken(Exception):
 
 
 class OneInchSwap:
-    base_url = 'https://api.1inch.io'
+    base_url = 'https://api.1inch.dev/swap'
+    api_key = ''
 
     version = {
-        "v4.0": "v4.0",
-        "v5.0": "v5.0"
+        "v5.2": "v5.2"
     }
 
     chains = {
@@ -29,30 +29,38 @@ class OneInchSwap:
         "fantom": "250"
     }
 
-    def __init__(self, address, chain='ethereum', version='v5.0'):
+    def __init__(self, api_key, address, chain='ethereum', version='v5.2'):
         self.presets = None
         self.tokens = {}
         self.tokens_by_address = {}
         self.protocols = []
         self.address = address
+        self.api_key = api_key
         self.version = version
         self.chain_id = self.chains[chain]
         self.chain = chain
         self.tokens = self.get_tokens()
         self.spender = self.get_spender()
 
-    @staticmethod
-    def _get(url, params=None, headers=None):
+   
+    def _get(self, url, params=None, headers=None):
         """ Implements a get request """
         try:
+            auth = ("Authorization", f"Bearer {self.api_key}")
+            if (headers == None):
+                headers = {"accept": "application/json", "Authorization": f"Bearer {self.api_key}"}
+            else:
+                headers["accept"] = "application/json"
+                headers["Authorization"] = f"Bearer {self.api_key}"
             response = requests.get(url, params=params, headers=headers)
             response.raise_for_status()
             payload = response.json()
         except requests.exceptions.ConnectionError as e:
             print("ConnectionError when doing a GET request from {}".format(url))
             payload = None
-        except requests.exceptions.HTTPError:
+        except requests.exceptions.HTTPError as e:
             print("HTTPError {}".format(url))
+            print(e.response)
             payload = None
         return payload
 
