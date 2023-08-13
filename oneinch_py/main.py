@@ -46,7 +46,7 @@ class OneInchSwap:
     def _get(self, url, params=None, headers=None):
         """ Implements a get request """
         try:
-            if (headers == None):
+            if headers == None:
                 headers = {"accept": "application/json", "Authorization": f"Bearer {self.api_key}"}
             else:
                 headers["accept"] = "application/json"
@@ -224,6 +224,7 @@ class OneInchSwap:
 
 
 class TransactionHelper:
+    # 1Inch gas oracle doesn't seem to exist any longer
     gas_oracle = "https://gas-price-api.1inch.io/v1.3/"
 
     chains = {
@@ -243,10 +244,15 @@ class TransactionHelper:
     abi = json.loads(pkg_resources.read_text(__package__, 'erc20.json'))['result']
     abi_aggregator = json.loads(pkg_resources.read_text(__package__, 'aggregatorv5.json'))['result']
 
-    @staticmethod
-    def _get(url, params=None, headers=None):
+    def _get(self, url, params=None, headers=None):
         """ Implements a get request """
         try:
+            if headers == None:
+                headers = {"accept": "application/json", "Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+            else:
+                headers["accept"] = "application/json"
+                headers["Authorization"] = f"Bearer {self.api_key}"
+                headers["Content-Type"] = "application/json"
             response = requests.get(url, params=params, headers=headers)
             response.raise_for_status()
             payload = response.json()
@@ -258,12 +264,13 @@ class TransactionHelper:
             payload = None
         return payload
 
-    def __init__(self, rpc_url, public_key, private_key, chain='ethereum', broadcast_1inch=False):
+    def __init__(self,  api_key, rpc_url, public_key, private_key, chain='ethereum', broadcast_1inch=False):
         self.w3 = Web3(Web3.HTTPProvider(rpc_url))
         if chain == 'polygon' or chain == 'avalanche':
             self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
         else:
             pass
+        self.api_key =  api_key
         self.public_key = public_key
         self.private_key = private_key
         self.chain = chain
@@ -272,6 +279,8 @@ class TransactionHelper:
 
     def build_tx(self, raw_tx, speed='high'):
         nonce = self.w3.eth.get_transaction_count(self.public_key)
+        if raw_tx == None:
+            return None
         if 'tx' in raw_tx:
             tx = raw_tx['tx']
         else:
@@ -286,7 +295,7 @@ class TransactionHelper:
         tx['value'] = int(tx['value'])
         tx['gas'] = int(tx['gas'] * 1.25)
         if self.chain == 'ethereum' or self.chain == 'polygon' or self.chain == 'avalanche' or self.chain == 'gnosis' or self.chain == 'klaytn':
-            gas = self._get(self.gas_oracle+self.chain_id)
+            gas = self._get(self.gas_oracle + self.chain_id)
             tx['maxPriorityFeePerGas'] = int(gas[speed]['maxPriorityFeePerGas'])
             tx['maxFeePerGas'] = int(gas[speed]['maxFeePerGas'])
             tx.pop('gasPrice')
@@ -299,10 +308,12 @@ class TransactionHelper:
         return signed_tx
 
     def broadcast_tx(self, signed_tx, timeout=360):
+        api_base_url = 'https://api.1inch.dev/tx-gateway/v1.1/'
+        api_headers = {"accept": "application/json", "Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
         if self.broadcast_1inch is True:
             tx_json = signed_tx.rawTransaction
             tx_json = {"rawTransaction": tx_json.hex()}
-            payload = requests.post('https://tx-gateway.1inch.io/v1.1/' + self.chain_id + '/broadcast', data=self.w3.toJSON(tx_json), headers={"accept": "application/json, text/plain, */*", "content-type": "application/json"})
+            payload = requests.post(api_base_url + self.chain_id + "/broadcast", data=self.w3.toJSON(tx_json), headers=api_headers)
             tx_hash = json.loads(payload.text)
             tx_hash = tx_hash['transactionHash']
             receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
