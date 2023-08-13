@@ -46,7 +46,6 @@ class OneInchSwap:
     def _get(self, url, params=None, headers=None):
         """ Implements a get request """
         try:
-            auth = ("Authorization", f"Bearer {self.api_key}")
             if (headers == None):
                 headers = {"accept": "application/json", "Authorization": f"Bearer {self.api_key}"}
             else:
@@ -56,11 +55,12 @@ class OneInchSwap:
             response.raise_for_status()
             payload = response.json()
         except requests.exceptions.ConnectionError as e:
-            print("ConnectionError when doing a GET request from {}".format(url))
+            print(f"ConnectionError with code {e.response.status_code} when doing a GET request from {format(url)}")
+            print(f"Full error content {e.response._content}")
             payload = None
         except requests.exceptions.HTTPError as e:
-            print("HTTPError {}".format(url))
-            print(e.response)
+            print(f"HTTPError with code {e.response.status_code} for a request {format(url)}")
+            print(f"Full error content {e.response._content}")
             payload = None
         return payload
 
