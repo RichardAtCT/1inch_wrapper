@@ -237,7 +237,8 @@ class TransactionHelper:
         "avalanche": "43114",
         "fantom": "250",
         "klaytn": "8217",
-        "aurora": "1313161554"
+        "aurora": "1313161554",
+        "zksync": "324"
     }
 
 
