@@ -304,12 +304,17 @@ class TransactionHelper:
         return tx
 
     def sign_tx(self, tx):
+        if tx == None:
+            return None
         signed_tx = self.w3.eth.account.sign_transaction(tx, self.private_key)
         return signed_tx
 
     def broadcast_tx(self, signed_tx, timeout=360):
         api_base_url = 'https://api.1inch.dev/tx-gateway/v1.1/'
         api_headers = {"accept": "application/json", "Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+
+        if signed_tx == None:
+            return None
         if self.broadcast_1inch is True:
             tx_json = signed_tx.rawTransaction
             tx_json = {"rawTransaction": tx_json.hex()}
