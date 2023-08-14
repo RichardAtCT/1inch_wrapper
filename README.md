@@ -158,6 +158,8 @@ exchange.get_swap(from_token_symbol='ETH', to_token_symbol='USDT', amount=1, sli
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
+Thanks to @Makbeta for all of their work in migrating the wrapper to the new 1inch api system.
+
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
