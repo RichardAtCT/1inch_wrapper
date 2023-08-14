@@ -229,7 +229,6 @@ class OneInchSwap:
 
 
 class TransactionHelper:
-    # 1Inch gas oracle doesn't seem to exist any longer
     gas_oracle = "https://gas-price-api.1inch.io/v1.3/"
 
     chains = {
@@ -262,10 +261,14 @@ class TransactionHelper:
             response.raise_for_status()
             payload = response.json()
         except requests.exceptions.ConnectionError as e:
+            error_content = json.loads(e.response._content.decode("utf-8"))
             print("ConnectionError when doing a GET request from {}".format(url))
+            print(f"{error_content['error']} {error_content['description']}")
             payload = None
         except requests.exceptions.HTTPError:
+            error_content = json.loads(e.response._content.decode("utf-8"))
             print("HTTPError {}".format(url))
+            print(f"{error_content['error']} {error_content['description']}")
             payload = None
         return payload
 
