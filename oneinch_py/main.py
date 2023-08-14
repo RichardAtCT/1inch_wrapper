@@ -58,12 +58,14 @@ class OneInchSwap:
             response.raise_for_status()
             payload = response.json()
         except requests.exceptions.ConnectionError as e:
+            error_content = json.loads(e.response._content.decode("utf-8"))
             print(f"ConnectionError with code {e.response.status_code} when doing a GET request from {format(url)}")
-            print(f"Full error content {e.response._content}")
+            print(f"{error_content['error']} {error_content['description']}")
             payload = None
         except requests.exceptions.HTTPError as e:
+            error_content = json.loads(e.response._content.decode("utf-8"))
             print(f"HTTPError with code {e.response.status_code} for a request {format(url)}")
-            print(f"Full error content {e.response._content}")
+            print(f"{error_content['error']} {error_content['description']}")
             payload = None
         return payload
 
