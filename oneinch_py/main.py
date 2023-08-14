@@ -19,14 +19,17 @@ class OneInchSwap:
     }
 
     chains = {
-        "ethereum": '1',
-        "binance": '56',
+        "ethereum": "1",
+        "binance": "56",
         "polygon": "137",
         "optimism": "10",
         "arbitrum": "42161",
         "gnosis": "100",
         "avalanche": "43114",
-        "fantom": "250"
+        "fantom": "250",
+        "klaytn": "8217",
+        "aurora": "1313161554",
+        "zksync": "324"
     }
 
     def __init__(self, api_key, address, chain='ethereum', version='v5.2'):
@@ -228,8 +231,8 @@ class TransactionHelper:
     gas_oracle = "https://gas-price-api.1inch.io/v1.3/"
 
     chains = {
-        "ethereum": '1',
-        "binance": '56',
+        "ethereum": "1",
+        "binance": "56",
         "polygon": "137",
         "optimism": "10",
         "arbitrum": "42161",
@@ -349,14 +352,17 @@ class TransactionHelper:
 
 class OneInchOracle:
     chains = {
-        "ethereum": '1',
-        "binance": '56',
+        "ethereum": "1",
+        "binance": "56",
         "polygon": "137",
         "optimism": "10",
         "arbitrum": "42161",
         "gnosis": "100",
         "avalanche": "43114",
-        "fantom": "250"
+        "fantom": "250",
+        "klaytn": "8217",
+        "aurora": "1313161554",
+        "zksync": "324"
     }
 
     contracts = {
