@@ -1,4 +1,3 @@
-# THe recent changes to the API have broken the wrapper. I do not have the capacity at the moment to update it. Pull requests welcome.
 
 # 1inch.py
 
@@ -30,11 +29,12 @@ rpc_url = "yourRPCURL.com"
 binance_rpc = "adifferentRPCurl.com"
 public_key = "yourWalletAddress"
 private_key = "yourPrivateKey" #remember to protect your private key. Using environmental variables is recommended. 
+api_key = "" # 1 Inch API key
 
-exchange = OneInchSwap(public_key)
-bsc_exchange = OneInchSwap(public_key, chain='binance')
-helper = TransactionHelper(rpc_url, public_key, private_key)
-bsc_helper = TransactionHelper(binance_rpc, public_key, private_key, chain='binance')
+exchange = OneInchSwap(api_key, public_key)
+bsc_exchange = OneInchSwap(api_key, public_key, chain='binance')
+helper = TransactionHelper(api_key, rpc_url, public_key, private_key)
+bsc_helper = TransactionHelper(api_key, binance_rpc, public_key, private_key, chain='binance')
 oracle = OneInchOracle(rpc_url, chain='ethereum')
 
 
@@ -48,6 +48,10 @@ result = exchange.get_swap("USDT", "ETH", 10, 0.5) # get the swap transaction
 result = helper.build_tx(result) # prepare the transaction for signing, gas price defaults to fast.
 result = helper.sign_tx(result) # sign the transaction using your private key
 result = helper.broadcast_tx(result) #broadcast the transaction to the network and wait for the receipt. 
+
+## If you already have token addresses you can pass those in instead of token names to all OneInchSwap functions that require a token argument
+result = exchange.get_swap("0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9", "0x43dfc4159d86f3a37a5a4b3d4580b888ad7d4ddd", 10, 0.5) 
+
 
 #USDT to ETH price on the Oracle. Note that you need to indicate the token decimal if it is anything other than 18.
 oracle.get_rate_to_ETH("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", src_token_decimal=6)
@@ -153,6 +157,8 @@ exchange.get_swap(from_token_symbol='ETH', to_token_symbol='USDT', amount=1, sli
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Thanks to @Makbeta for all of their work in migrating the wrapper to the new 1inch api system.
 
 
 ## License
