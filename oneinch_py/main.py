@@ -69,7 +69,7 @@ class OneInchSwap:
 
     def _token_to_address(self, token: str):
         if len(token) == 42:
-            return self.w3.to_checksum_address(token)
+            return Web3.to_checksum_address(token)
         else:
             try:
                 address = self.tokens[token]['address']
@@ -243,7 +243,6 @@ class TransactionHelper:
         "aurora": "1313161554",
         "zksync": "324"
     }
-
 
     abi = json.loads(pkg_resources.read_text(__package__, 'erc20.json'))['result']
     abi_aggregator = json.loads(pkg_resources.read_text(__package__, 'aggregatorv5.json'))['result']
