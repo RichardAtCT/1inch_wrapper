@@ -101,7 +101,7 @@ class OneInchSwap:
         Calls the Tokens API endpoint
         :return: A dictionary of all the whitelisted tokens.
         """
-        url = f'{self.base_url}/{self.version}/{self.chain_id}/tokens'
+        url = f'{self.base_url}/token/v1.2/{self.chain_id}/token-list'
         result = self._get(url)
         if not result.__contains__('tokens'):
             return result
