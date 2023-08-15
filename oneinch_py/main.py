@@ -1,4 +1,6 @@
 import json
+import time
+
 import requests
 from web3 import Web3
 from decimal import *
@@ -43,7 +45,9 @@ class OneInchSwap:
         self.chain_id = self.chains[chain]
         self.chain = chain
         self.tokens = self.get_tokens()
+        time.sleep(1)
         self.spender = self.get_spender()
+        time.sleep(1)
 
    
     def _get(self, url, params=None, headers=None):
@@ -58,14 +62,14 @@ class OneInchSwap:
             response.raise_for_status()
             payload = response.json()
         except requests.exceptions.ConnectionError as e:
-            error_content = json.loads(e.response._content.decode("utf-8"))
+            # error_content = json.loads(e.response._content.decode("utf-8"))
             print(f"ConnectionError with code {e.response.status_code} when doing a GET request from {format(url)}")
-            print(f"{error_content['error']} {error_content['description']}")
+            # print(f"{error_content['error']} {error_content['description']}")
             payload = None
         except requests.exceptions.HTTPError as e:
-            error_content = json.loads(e.response._content.decode("utf-8"))
+            # error_content = json.loads(e.response._content.decode("utf-8"))
             print(f"HTTPError with code {e.response.status_code} for a request {format(url)}")
-            print(f"{error_content['error']} {error_content['description']}")
+            # print(f"{error_content['error']} {error_content['description']}")
             payload = None
         return payload
 
@@ -90,7 +94,9 @@ class OneInchSwap:
 
     def get_spender(self):
         url = f'{self.base_url}/{self.version}/{self.chain_id}/approve/spender'
+        # print(url)
         result = self._get(url)
+        # print(result)
         if not result.__contains__('spender'):
             return result
         self.spender = result
@@ -101,7 +107,7 @@ class OneInchSwap:
         Calls the Tokens API endpoint
         :return: A dictionary of all the whitelisted tokens.
         """
-        url = f'{self.base_url}/token/v1.2/{self.chain_id}/token-list'
+        url = f'https://api.1inch.dev/token/v1.2/{self.chain_id}'
         result = self._get(url)
         if not result.__contains__('tokens'):
             return result
