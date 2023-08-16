@@ -17,7 +17,7 @@ setup(
     include_package_data=True,
     install_requires=[
             'requests>=2.28.1',
-            'web3>=5.30.0',
+            'web3>=6.0.0',
             'setuptools>=57.0.0'],
     python_requires=">=3.7, <4",
     license='MIT',
