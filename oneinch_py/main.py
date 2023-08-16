@@ -94,9 +94,7 @@ class OneInchSwap:
 
     def get_spender(self):
         url = f'{self.base_url}/{self.version}/{self.chain_id}/approve/spender'
-        # print(url)
         result = self._get(url)
-        # print(result)
         if not result.__contains__('spender'):
             return result
         self.spender = result
@@ -157,13 +155,13 @@ class OneInchSwap:
             result = self._get(url, params=kwargs)
         else:
             result = self._get(url)
-        from_base = Decimal(result['fromTokenAmount']) / Decimal(10 ** result['fromToken']['decimals'])
-        to_base = Decimal(result['toTokenAmount']) / Decimal(10 ** result['toToken']['decimals'])
-        if from_base > to_base:
-            rate = from_base / to_base
-        else:
-            rate = to_base / from_base
-        return result, rate
+        # from_base = Decimal(result['fromTokenAmount']) / Decimal(10 ** result['fromToken']['decimals'])
+        # to_base = Decimal(result['toTokenAmount']) / Decimal(10 ** result['toToken']['decimals'])
+        # if from_base > to_base:
+        #     rate = from_base / to_base
+        # else:
+        #     rate = to_base / from_base
+        return result
 
     def get_swap(self, from_token_symbol: str, to_token_symbol: str,
                  amount: float, slippage: float, decimal=None, send_address=None, **kwargs):
