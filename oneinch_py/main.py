@@ -381,7 +381,8 @@ class OneInchOracle:
         "arbitrum": "0x735247fb0a604c0adC6cab38ACE16D0DbA31295F",
         "gnosis": "0x142DB045195CEcaBe415161e1dF1CF0337A4d02E",
         "avalanche": "0xBd0c7AaF0bF082712EbE919a9dD94b2d978f79A9",
-        "fantom": "0xE8E598A1041b6fDB13999D275a202847D9b654ca"
+        "fantom": "0xE8E598A1041b6fDB13999D275a202847D9b654ca",
+        "zksync": "0xC762d56614D3411eC6fABD56cb075D904b801613"
     }
 
     # multicall_address = "0xDA3C19c6Fe954576707fA24695Efb830D9ccA1CA"
