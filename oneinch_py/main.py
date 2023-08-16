@@ -152,13 +152,13 @@ class OneInchSwap:
         else:
             amount_in_wei = int(amount * 10 ** decimal)
         url = f'{self.base_url}/{self.version}/{self.chain_id}/quote'
-        url = url + f'?fromTokenAddress={from_address}&toTokenAddress={to_address}&amount={amount_in_wei}'
+        url = url + f'?src={from_address}&dst={to_address}&amount={amount_in_wei}'
         if kwargs is not None:
             result = self._get(url, params=kwargs)
         else:
             result = self._get(url)
-        from_base = Decimal(result['fromTokenAmount']) / Decimal(10 ** result['fromToken']['decimals'])
-        to_base = Decimal(result['toTokenAmount']) / Decimal(10 ** result['toToken']['decimals'])
+        from_base = amount_in_wei
+        to_base = int(result['toAmount'])
         if from_base > to_base:
             rate = from_base / to_base
         else:
