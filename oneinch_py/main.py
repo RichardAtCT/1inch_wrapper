@@ -109,14 +109,12 @@ class OneInchSwap:
         """
         url = f'https://api.1inch.dev/token/v1.2/{self.chain_id}'
         result = self._get(url)
-        if not result.__contains__('tokens'):
-            return result
-        for key in result['tokens']:
-            token = result['tokens'][key]
+        for key in result:
+            token = result[key]
             self.tokens_by_address[key] = token
             self.tokens[token['symbol']] = token
         return self.tokens
-
+    
     def get_liquidity_sources(self):
         url = f'{self.base_url}/{self.version}/{self.chain_id}/liquidity-sources'
         result = self._get(url)
