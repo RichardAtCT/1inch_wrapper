@@ -122,8 +122,6 @@ class OneInchSwap:
     def get_presets(self):
         url = f'{self.base_url}/{self.version}/{self.chain_id}/presets'
         result = self._get(url)
-        if not result.__contains__('presets'):
-            return result
         self.presets = result
         return self.presets
 
