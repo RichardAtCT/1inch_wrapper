@@ -116,8 +116,6 @@ class OneInchSwap:
     def get_liquidity_sources(self):
         url = f'{self.base_url}/{self.version}/{self.chain_id}/liquidity-sources'
         result = self._get(url)
-        if not result.__contains__('liquidity-sources'):
-            return result
         self.protocols = result
         return self.protocols
 
