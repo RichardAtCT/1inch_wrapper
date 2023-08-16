@@ -95,8 +95,6 @@ class OneInchSwap:
     def get_spender(self):
         url = f'{self.base_url}/{self.version}/{self.chain_id}/approve/spender'
         result = self._get(url)
-        if not result.__contains__('spender'):
-            return result
         self.spender = result
         return self.spender
 
