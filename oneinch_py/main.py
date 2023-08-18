@@ -95,8 +95,6 @@ class OneInchSwap:
     def get_spender(self):
         url = f'{self.base_url}/{self.version}/{self.chain_id}/approve/spender'
         result = self._get(url)
-        if not result.__contains__('spender'):
-            return result
         self.spender = result
         return self.spender
 
@@ -116,16 +114,12 @@ class OneInchSwap:
     def get_liquidity_sources(self):
         url = f'{self.base_url}/{self.version}/{self.chain_id}/liquidity-sources'
         result = self._get(url)
-        if not result.__contains__('liquidity-sources'):
-            return result
         self.protocols = result
         return self.protocols
 
     def get_presets(self):
         url = f'{self.base_url}/{self.version}/{self.chain_id}/presets'
         result = self._get(url)
-        if not result.__contains__('presets'):
-            return result
         self.presets = result
         return self.presets
 
@@ -150,7 +144,7 @@ class OneInchSwap:
         else:
             amount_in_wei = int(amount * 10 ** decimal)
         url = f'{self.base_url}/{self.version}/{self.chain_id}/quote'
-        url = url + f'?fromTokenAddress={from_address}&toTokenAddress={to_address}&amount={amount_in_wei}'
+        url = url + f'?src={from_address}&dst={to_address}&amount={amount_in_wei}'
         if kwargs is not None:
             result = self._get(url, params=kwargs)
         else:
@@ -379,7 +373,8 @@ class OneInchOracle:
         "arbitrum": "0x735247fb0a604c0adC6cab38ACE16D0DbA31295F",
         "gnosis": "0x142DB045195CEcaBe415161e1dF1CF0337A4d02E",
         "avalanche": "0xBd0c7AaF0bF082712EbE919a9dD94b2d978f79A9",
-        "fantom": "0xE8E598A1041b6fDB13999D275a202847D9b654ca"
+        "fantom": "0xE8E598A1041b6fDB13999D275a202847D9b654ca",
+        "zksync": "0xC762d56614D3411eC6fABD56cb075D904b801613"
     }
 
     # multicall_address = "0xDA3C19c6Fe954576707fA24695Efb830D9ccA1CA"
