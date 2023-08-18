@@ -42,6 +42,9 @@ oracle = OneInchOracle(rpc_url, chain='ethereum')
 helper.chains
 # {"ethereum": "1", "binance": "56", "polygon": "137", "avalanche": "43114"}
 
+# To get gas prices
+helper.get_gas_prices()
+
 # Straight to business:
 # Get a swap and do the swap
 result = exchange.get_swap("USDT", "ETH", 10, 0.5) # get the swap transaction

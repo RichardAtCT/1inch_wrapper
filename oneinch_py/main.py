@@ -299,13 +299,16 @@ class TransactionHelper:
         tx['value'] = int(tx['value'])
         tx['gas'] = int(tx['gas'] * 1.25)
         if self.chain == 'ethereum' or self.chain == 'polygon' or self.chain == 'avalanche' or self.chain == 'gnosis' or self.chain == 'klaytn':
-            gas = self._get(self.gas_oracle + self.chain_id)
+            gas = self.get_gas_prices()
             tx['maxPriorityFeePerGas'] = int(gas[speed]['maxPriorityFeePerGas'])
             tx['maxFeePerGas'] = int(gas[speed]['maxFeePerGas'])
             tx.pop('gasPrice')
         else:
             tx['gasPrice'] = int(tx['gasPrice'])
         return tx
+    
+    def get_gas_prices(self):
+        return self._get(self.gas_oracle + self.chain_id)
 
     def sign_tx(self, tx):
         if tx == None:
