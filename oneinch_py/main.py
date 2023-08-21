@@ -183,8 +183,8 @@ class OneInchSwap:
         else:
             amount_in_wei = int(amount * 10 ** decimal)
         url = f'{self.base_url}/{self.version}/{self.chain_id}/swap'
-        url = url + f'?fromTokenAddress={from_address}&toTokenAddress={to_address}&amount={amount_in_wei}'
-        url = url + f'&fromAddress={send_address}&slippage={slippage}'
+        url = url + f'?src={from_address}&dst={to_address}&amount={amount_in_wei}'
+        url = url + f'&from={send_address}&slippage={slippage}'
         if kwargs is not None:
             result = self._get(url, params=kwargs)
         else:
@@ -299,13 +299,16 @@ class TransactionHelper:
         tx['value'] = int(tx['value'])
         tx['gas'] = int(tx['gas'] * 1.25)
         if self.chain == 'ethereum' or self.chain == 'polygon' or self.chain == 'avalanche' or self.chain == 'gnosis' or self.chain == 'klaytn':
-            gas = self._get(self.gas_oracle + self.chain_id)
+            gas = self.get_gas_prices()
             tx['maxPriorityFeePerGas'] = int(gas[speed]['maxPriorityFeePerGas'])
             tx['maxFeePerGas'] = int(gas[speed]['maxFeePerGas'])
             tx.pop('gasPrice')
         else:
             tx['gasPrice'] = int(tx['gasPrice'])
         return tx
+    
+    def get_gas_prices(self):
+        return self._get(self.gas_oracle + self.chain_id)
 
     def sign_tx(self, tx):
         if tx == None:
