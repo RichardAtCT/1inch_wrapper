@@ -3,9 +3,10 @@ import time
 
 import requests
 from web3 import Web3
-from decimal import *
 import importlib.resources as pkg_resources
-from web3.middleware import geth_poa_middleware
+
+from web3.exceptions import ExtraDataLengthError
+from web3.middleware import ExtraDataToPOAMiddleware
 
 
 class UnknownToken(Exception):
@@ -53,7 +54,7 @@ class OneInchSwap:
     def _get(self, url, params=None, headers=None):
         """ Implements a get request """
         try:
-            if headers == None:
+            if headers is None:
                 headers = {"accept": "application/json", "Authorization": f"Bearer {self.api_key}"}
             else:
                 headers["accept"] = "application/json"
@@ -247,7 +248,7 @@ class TransactionHelper:
     def _get(self, url, params=None, headers=None):
         """ Implements a get request """
         try:
-            if headers == None:
+            if headers is None:
                 headers = {"accept": "application/json", "Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
             else:
                 headers["accept"] = "application/json"
@@ -258,7 +259,7 @@ class TransactionHelper:
             payload = response.json()
         except requests.exceptions.ConnectionError as e:
             # error_content = json.loads(e.response._content.decode("utf-8"))
-            print("ConnectionError when doing a GET request from {}".format(url))
+            print("ConnectionError: %s when doing a GET request from {}".format(url) % e)
             # print(f"{error_content['error']} {error_content['description']}")
             payload = None
         except requests.exceptions.HTTPError:
@@ -268,10 +269,19 @@ class TransactionHelper:
             payload = None
         return payload
 
+
+    @staticmethod
+    def test_poa_chain(ins: Web3) -> bool:
+        try:
+            ins.eth.get_block('latest', True)
+        except ExtraDataLengthError:
+            return True
+        return False
+
     def __init__(self,  api_key, rpc_url, public_key, private_key, chain='ethereum', broadcast_1inch=False):
         self.w3 = Web3(Web3.HTTPProvider(rpc_url))
-        if chain == 'polygon' or chain == 'avalanche':
-            self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        if self.test_poa_chain(self.w3):
+            self.w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
         else:
             pass
         self.api_key =  api_key
@@ -283,7 +293,7 @@ class TransactionHelper:
 
     def build_tx(self, raw_tx, speed='high'):
         nonce = self.w3.eth.get_transaction_count(self.public_key)
-        if raw_tx == None:
+        if raw_tx is None:
             return None
         if 'tx' in raw_tx:
             tx = raw_tx['tx']
@@ -311,7 +321,7 @@ class TransactionHelper:
         return self._get(self.gas_oracle + self.chain_id)
 
     def sign_tx(self, tx):
-        if tx == None:
+        if tx is None:
             return None
         signed_tx = self.w3.eth.account.sign_transaction(tx, self.private_key)
         return signed_tx
@@ -320,12 +330,12 @@ class TransactionHelper:
         api_base_url = 'https://api.1inch.dev/tx-gateway/v1.1/'
         api_headers = {"accept": "application/json", "Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
 
-        if signed_tx == None:
+        if signed_tx is None:
             return None
         if self.broadcast_1inch is True:
             tx_json = signed_tx.rawTransaction
             tx_json = {"rawTransaction": tx_json.hex()}
-            payload = requests.post(api_base_url + self.chain_id + "/broadcast", data=self.w3.toJSON(tx_json), headers=api_headers)
+            payload = requests.post(api_base_url + self.chain_id + "/broadcast", data=self.w3.to_json(tx_json), headers=api_headers)
             tx_hash = json.loads(payload.text)
             tx_hash = tx_hash['transactionHash']
             receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
@@ -336,7 +346,7 @@ class TransactionHelper:
             receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
             return receipt, tx_hash.hex()
 
-    def get_ERC20_balance(self, contract_address, decimal=None):
+    def get_erc20_balance(self, contract_address, decimal=None):
         contract = self.w3.eth.contract(address=self.w3.to_checksum_address(contract_address), abi=self.abi)
         balance_in_wei = contract.functions.balanceOf(self.public_key).call()
         if decimal is None:
@@ -406,7 +416,7 @@ class OneInchOracle:
             rate = rate / 10 ** 18
         return rate
 
-    def get_rate_to_ETH(self, src_token, wrap=False, src_token_decimal=18):
+    def get_rate_to_eth(self, src_token, wrap=False, src_token_decimal=18):
         rate = self.oracle_contract.functions.getRateToEth(self.w3.to_checksum_address(src_token), wrap).call()
         if src_token_decimal == 18:
             rate = rate / 10 ** 18

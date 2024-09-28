@@ -19,8 +19,7 @@ pip install 1inch.py
 ## Usage
 
 A quick note on decimals. The wrapper is designed for ease of use, and as such accepts amounts in "Ether" or whole units. 
-If you prefer, you can use decimal=0 and specify amounts in wei. This will also help with any potential floating point errors. 
-
+If you prefer, you can use decimal=0 and specify amounts in wei. This will also help with any potential floating point errors.
 
 ```python
 from oneinch_py import OneInchSwap, TransactionHelper, OneInchOracle
@@ -28,15 +27,14 @@ from oneinch_py import OneInchSwap, TransactionHelper, OneInchOracle
 rpc_url = "yourRPCURL.com"
 binance_rpc = "adifferentRPCurl.com"
 public_key = "yourWalletAddress"
-private_key = "yourPrivateKey" #remember to protect your private key. Using environmental variables is recommended. 
-api_key = "" # 1 Inch API key
+private_key = "yourPrivateKey"  # remember to protect your private key. Using environmental variables is recommended. 
+api_key = ""  # 1 Inch API key
 
 exchange = OneInchSwap(api_key, public_key)
 bsc_exchange = OneInchSwap(api_key, public_key, chain='binance')
 helper = TransactionHelper(api_key, rpc_url, public_key, private_key)
 bsc_helper = TransactionHelper(api_key, binance_rpc, public_key, private_key, chain='binance')
 oracle = OneInchOracle(rpc_url, chain='ethereum')
-
 
 # See chains currently supported by the helper method:
 helper.chains
@@ -47,20 +45,21 @@ helper.get_gas_prices()
 
 # Straight to business:
 # Get a swap and do the swap
-result = exchange.get_swap("USDT", "ETH", 10, 0.5) # get the swap transaction
-result = helper.build_tx(result) # prepare the transaction for signing, gas price defaults to fast.
-result = helper.sign_tx(result) # sign the transaction using your private key
-result = helper.broadcast_tx(result) #broadcast the transaction to the network and wait for the receipt. 
+result = exchange.get_swap("USDT", "ETH", 10, 0.5)  # get the swap transaction
+result = helper.build_tx(result)  # prepare the transaction for signing, gas price defaults to fast.
+result = helper.sign_tx(result)  # sign the transaction using your private key
+result = helper.broadcast_tx(result)  # broadcast the transaction to the network and wait for the receipt. 
 
 ## If you already have token addresses you can pass those in instead of token names to all OneInchSwap functions that require a token argument
-result = exchange.get_swap("0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9", "0x43dfc4159d86f3a37a5a4b3d4580b888ad7d4ddd", 10, 0.5) 
+result = exchange.get_swap("0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9", "0x43dfc4159d86f3a37a5a4b3d4580b888ad7d4ddd",
+                           10, 0.5)
 
-
-#USDT to ETH price on the Oracle. Note that you need to indicate the token decimal if it is anything other than 18.
-oracle.get_rate_to_ETH("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", src_token_decimal=6)
+# USDT to ETH price on the Oracle. Note that you need to indicate the token decimal if it is anything other than 18.
+oracle.get_rate_to_eth("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", src_token_decimal=6)
 
 # Get the rate between any two tokens.
-oracle.get_rate(src_token="0x6B175474E89094C44Da98b954EedeAC495271d0F", dst_token="0x111111111117dC0aa78b770fA6A738034120C302")
+oracle.get_rate(src_token="0x6B175474E89094C44Da98b954EedeAC495271d0F",
+                dst_token="0x111111111117dC0aa78b770fA6A738034120C302")
 
 exchange.health_check()
 # 'OK'
