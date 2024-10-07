@@ -16,9 +16,9 @@ setup(
     packages=find_packages(include=['oneinch_py', 'oneinch_py.*']),
     include_package_data=True,
     install_requires=[
-            'requests>=2.28.1',
-            'web3>=6.0.0',
-            'setuptools>=57.0.0'],
+            'requests>=2.32.3',
+            'web3>=7.3.0',
+            'setuptools>=75.1.0'],
     python_requires=">=3.7, <4",
     license='MIT',
     author='RichardAt',
